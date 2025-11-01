@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - Youreln素材共享平台</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#4b5563',
+                        dark: '#111827',
+                        light: '#f3f4f6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-300;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors duration-300;
+            }
+            .btn-danger {
+                @apply bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300;
+            }
+            .btn-success {
+                @apply bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors duration-300;
+            }
+            .input-field {
+                @apply w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+            }
+            .table-header {
+                @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+            }
+            .table-cell {
+                @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+            }
+            .tab-active {
+                @apply border-b-2 border-primary text-primary;
+            }
+            .tab-inactive {
+                @apply border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header class="bg-dark text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/e66e0d9c8700445aa71673d84cd16693~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590472&x-signature=r%2FpZD3d4xyaCGy0BYPr%2BaScd72U%3D" alt="Youreln Logo" class="h-10 w-10">
+                <h1 class="text-2xl font-bold">Youreln素材共享平台</h1>
+            </div>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="index.html" class="hover:text-primary transition-colors duration-300">前台首页</a></li>
+                    <li><button id="logout-btn" class="hover:text-primary transition-colors duration-300">退出登录</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-md p-6 animate-fade-in">
+            <h2 class="text-2xl font-bold mb-6">后台管理系统</h2>
+            
+            <!-- 标签页导航 -->
+            <div class="border-b border-gray-200 mb-6">
+                <nav class="-mb-px flex space-x-8">
+                    <button class="tab-btn tab-active py-4 px-1 text-sm font-medium" data-tab="materials">
+                        <i class="fa fa-file-image-o mr-2"></i>素材管理
+                    </button>
+                    <button class="tab-btn tab-inactive py-4 px-1 text-sm font-medium" data-tab="users">
+                        <i class="fa fa-users mr-2"></i>用户管理
+                    </button>
+                    <button class="tab-btn tab-inactive py-4 px-1 text-sm font-medium" data-tab="settings">
+                        <i class="fa fa-cog mr-2"></i>系统设置
+                    </button>
+                </nav>
+            </div>
+            
+            <!-- 素材管理标签页 -->
+            <div id="materials-tab" class="tab-content">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">素材列表</h3>
+                    <button id="add-material-btn" class="btn-primary">
+                        <i class="fa fa-plus mr-2"></i>添加素材
+                    </button>
+                </div>
+                
+                <!-- 素材表格 -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="table-header">标题</th>
+                                <th scope="col" class="table-header">日期</th>
+                                <th scope="col" class="table-header">类别</th>
+                                <th scope="col" class="table-header">缩略图</th>
+                                <th scope="col" class="table-header">云盘链接</th>
+                                <th scope="col" class="table-header">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="materials-table-body">
+                            <!-- 素材数据将通过JavaScript动态生成 -->
+                            <tr>
+                                <td class="table-cell">山脉湖泊风景</td>
+                                <td class="table-cell">2025-06-15</td>
+                                <td class="table-cell">风景</td>
+                                <td class="table-cell">
+                                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/8fb9d74015364892b7e5b3ff20aee905~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=Q9i4O8NoPJlFQFyXTG%2Fh0RAii1A%3D" alt="缩略图" class="h-12 w-12 object-cover rounded">
+                                </td>
+                                <td class="table-cell">
+                                    <a href="https://example.com/download/1" target="_blank" class="text-primary hover:underline">查看链接</a>
+                                </td>
+                                <td class="table-cell">
+                                    <button class="text-primary hover:text-blue-700 mr-3 edit-material-btn" data-id="1">
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700 delete-material-btn" data-id="1">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-cell">城市夜景</td>
+                                <td class="table-cell">2025-06-16</td>
+                                <td class="table-cell">城市</td>
+                                <td class="table-cell">
+                                    <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/0685d4dee65a45b78dfa3229c02ec0ef~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=kd%2FwOYuKAn1YKF4hJ3xqcV1YPOo%3D" alt="缩略图" class="h-12 w-12 object-cover rounded">
+                                </td>
+                                <td class="table-cell">
+                                    <a href="https://example.com/download/2" target="_blank" class="text-primary hover:underline">查看链接</a>
+                                </td>
+                                <td class="table-cell">
+                                    <button class="text-primary hover:text-blue-700 mr-3 edit-material-btn" data-id="2">
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700 delete-material-btn" data-id="2">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-cell">人像摄影集</td>
+                                <td class="table-cell">2025-06-17</td>
+                                <td class="table-cell">人像</td>
+                                <td class="table-cell">
+                                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c86e63a10eec49a180f6c1a4aa541e67~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=OP5aIOYYpO2oH9NwwcpsmzVyZ6w%3D" alt="缩略图" class="h-12 w-12 object-cover rounded">
+                                </td>
+                                <td class="table-cell">
+                                    <a href="https://example.com/download/3" target="_blank" class="text-primary hover:underline">查看链接</a>
+                                </td>
+                                <td class="table-cell">
+                                    <button class="text-primary hover:text-blue-700 mr-3 edit-material-btn" data-id="3">
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700 delete-material-btn" data-id="3">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 用户管理标签页 -->
+            <div id="users-tab" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">用户列表</h3>
+                    <button id="add-user-btn" class="btn-primary">
+                        <i class="fa fa-plus mr-2"></i>添加用户
+                    </button>
+                </div>
+                
+                <!-- 用户表格 -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="table-header">用户名</th>
+                                <th scope="col" class="table-header">创建时间</th>
+                                <th scope="col" class="table-header">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="users-table-body">
+                            <!-- 用户数据将通过JavaScript动态生成 -->
+                            <tr>
+                                <td class="table-cell">admin</td>
+                                <td class="table-cell">2025-06-01 10:00:00</td>
+                                <td class="table-cell">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        管理员
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-cell">user1</td>
+                                <td class="table-cell">2025-06-02 14:30:00</td>
+                                <td class="table-cell">
+                                    <button class="text-red-500 hover:text-red-700 delete-user-btn" data-id="user1">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-cell">user2</td>
+                                <td class="table-cell">2025-06-03 09:15:00</td>
+                                <td class="table-cell">
+                                    <button class="text-red-500 hover:text-red-700 delete-user-btn" data-id="user2">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="table-cell">test</td>
+                                <td class="table-cell">2025-06-04 16:45:00</td>
+                                <td class="table-cell">
+                                    <button class="text-red-500 hover:text-red-700 delete-user-btn" data-id="test">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 系统设置标签页 -->
+            <div id="settings-tab" class="tab-content hidden">
+                <h3 class="text-xl font-semibold mb-4">系统设置</h3>
+                
+                <!-- 修改密码表单 -->
+                <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                    <h4 class="text-lg font-medium mb-4">修改管理员密码</h4>
+                    <form id="change-password-form" class="space-y-4">
+                        <div>
+                            <label for="current-password" class="block text-sm font-medium text-gray-700 mb-1">当前密码</label>
+                            <input type="password" id="current-password" name="current-password" class="input-field" required>
+                        </div>
+                        <div>
+                            <label for="new-password" class="block text-sm font-medium text-gray-700 mb-1">新密码</label>
+                            <input type="password" id="new-password" name="new-password" class="input-field" required>
+                        </div>
+                        <div>
+                            <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-1">确认新密码</label>
+                            <input type="password" id="confirm-password" name="confirm-password" class="input-field" required>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="btn-primary">
+                                <i class="fa fa-save mr-2"></i>保存修改
+                            </button>
+                        </div>
+                    </form>
+                    <div id="password-success" class="hidden mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded" role="alert">
+                        <strong class="font-bold">成功：</strong>
+                        <span class="block sm:inline">密码修改成功</span>
+                    </div>
+                    <div id="password-error" class="hidden mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
+                        <strong class="font-bold">错误：</strong>
+                        <span class="block sm:inline" id="password-error-message">当前密码错误</span>
+                    </div>
+                </div>
+                
+                <!-- 系统信息 -->
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h4 class="text-lg font-medium mb-4">系统信息</h4>
+                    <div class="space-y-2">
+                        <p class="text-gray-700"><span class="font-medium">系统名称：</span>Youreln素材共享平台</p>
+                        <p class="text-gray-700"><span class="font-medium">版本：</span>1.0.0</p>
+                        <p class="text-gray-700"><span class="font-medium">后端服务：</span>本地存储</p>
+                        <p class="text-gray-700"><span class="font-medium">最后更新：</span>2025-10-25</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/e66e0d9c8700445aa71673d84cd16693~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590472&x-signature=r%2FpZD3d4xyaCGy0BYPr%2BaScd72U%3D" alt="Youreln Logo" class="h-8 w-8">
+                        <span class="text-lg font-bold">Youreln素材共享平台</span>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-2">© 2025 Youreln. 保留所有权利。</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">
+                        <i class="fa fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">
+                        <i class="fa fa-weixin text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">
+                        <i class="fa fa-envelope text-xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 添加/编辑素材模态框 -->
+    <div id="material-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl animate-fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold" id="material-modal-title">添加素材</h3>
+                <button id="close-material-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="material-form" class="space-y-4">
+                <input type="hidden" id="material-id" name="material-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="material-title" class="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                        <input type="text" id="material-title" name="material-title" class="input-field" required>
+                    </div>
+                    <div>
+                        <label for="material-date" class="block text-sm font-medium text-gray-700 mb-1">日期</label>
+                        <input type="date" id="material-date" name="material-date" class="input-field" required>
+                    </div>
+                </div>
+                <div>
+                    <label for="material-time" class="block text-sm font-medium text-gray-700 mb-1">时段</label>
+                    <select id="material-time" name="material-time" class="input-field" required>
+                        <option value="上午">上午</option>
+                        <option value="下午">下午</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="material-description" class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                    <textarea id="material-description" name="material-description" rows="3" class="input-field" required></textarea>
+                </div>
+                <div>
+                    <label for="material-thumbnail" class="block text-sm font-medium text-gray-700 mb-1">缩略图URL</label>
+                    <input type="url" id="material-thumbnail" name="material-thumbnail" class="input-field" required>
+                </div>
+                <div>
+                    <label for="material-cloudlink" class="block text-sm font-medium text-gray-700 mb-1">云盘链接</label>
+                    <input type="url" id="material-cloudlink" name="material-cloudlink" class="input-field" required>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancel-material" class="btn-secondary">取消</button>
+                    <button type="submit" class="btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加用户模态框 -->
+    <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md animate-fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">添加用户</h3>
+                <button id="close-user-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="user-form" class="space-y-4">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                    <input type="text" id="username" name="username" class="input-field" required>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancel-user" class="btn-secondary">取消</button>
+                    <button type="submit" class="btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 确认删除模态框 -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md animate-fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">确认删除</h3>
+                <button id="close-confirm-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <p class="text-gray-600 mb-4" id="confirm-message">您确定要删除此项目吗？此操作无法撤销。</p>
+            <div class="flex justify-end space-x-3">
+                <button id="cancel-delete" class="btn-secondary">取消</button>
+                <button id="confirm-delete" class="btn-danger">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+
+
+        // 全局变量
+        let currentMaterialId = null;
+        let currentUserId = null;
+        let deleteType = null; // 'material' 或 'user'
+        
+        // 本地数据
+        const materials = [
+            {
+                id: '1',
+                title: '10月22日上午拍摄素材',
+                description: '大疆OSMO Nano 10月22日上午拍摄的素材，仅用户zsq可访问。',
+                date: '2025-10-22',
+                time: '上午',
+                category: 'other',
+                thumbnail: 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/8fb9d74015364892b7e5b3ff20aee905~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=Q9i4O8NoPJlFQFyXTG%2Fh0RAii1A%3D',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidYTcMP6Xjo',
+                extractCode: 'n2yx',
+                allowedUsers: ['zsq']
+            },
+            {
+                id: '2',
+                title: '10月22日下午拍摄素材',
+                description: '大疆OSMO Nano 10月22日下午拍摄的素材，仅用户lhy可访问。',
+                date: '2025-10-22',
+                time: '下午',
+                category: 'other',
+                thumbnail: 'https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/0685d4dee65a45b78dfa3229c02ec0ef~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=kd%2FwOYuKAn1YKF4hJ3xqcV1YPOo%3D',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidYWd1aEAi6',
+                extractCode: 'na0u',
+                allowedUsers: ['lhy']
+            },
+            {
+                id: '3',
+                title: '10月23日上午拍摄素材',
+                description: '大疆OSMO Nano 10月23日上午拍摄的素材，仅用户lyj和cjq和lzy可访问。',
+                date: '2025-10-23',
+                time: '上午',
+                category: 'other',
+                thumbnail: 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c86e63a10eec49a180f6c1a4aa541e67~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=OP5aIOYYpO2oH9NwwcpsmzVyZ6w%3D',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidYMckaNexb',
+                extractCode: 'mcxz',
+                allowedUsers: ['lyj', 'cjq', 'lzy']
+            },
+            {
+                id: '4',
+                title: '10月23日下午拍摄素材',
+                description: '大疆OSMO Nano 10月23日下午拍摄的素材，仅用户cjq可访问。',
+                date: '2025-10-23',
+                time: '下午',
+                category: 'other',
+                thumbnail: 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/8fb9d74015364892b7e5b3ff20aee905~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=Q9i4O8NoPJlFQFyXTG%2Fh0RAii1A%3D',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidZ5dFWq7m4',
+                extractCode: 'aut5',
+                allowedUsers: ['cjq']
+            },
+            {
+                id: '5',
+                title: '10月24日上午拍摄素材',
+                description: '大疆OSMO Nano 10月24日上午拍摄的素材，仅用户lzy可访问。',
+                date: '2025-10-24',
+                time: '上午',
+                category: 'other',
+                thumbnail: 'https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/0685d4dee65a45b78dfa3229c02ec0ef~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=kd%2FwOYuKAn1YKF4hJ3xqcV1YPOo%3D',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidYCbEioEoo',
+                extractCode: 'zuwe',
+                allowedUsers: ['lzy']
+            },
+            {
+                id: '6',
+                title: '10月24日下午拍摄素材',
+                description: '大疆OSMO Nano 10月24日下午拍摄的素材，仅用户lyh和cjq和lyj和qzf可访问。',
+                date: '2025-10-24',
+                time: '下午',
+                category: 'other',
+                thumbnail: 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c86e63a10eec49a180f6c1a4aa541e67~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=OP5aIOYYpO2oH9NwwcpsmzVyZ6w%3D',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidYWd17Qbv0',
+                extractCode: 'jfte',
+                allowedUsers: ['lyh', 'cjq', 'lyj', 'qzf']
+            }
+        ];
+        
+        const users = [
+            { id: 'admin', username: 'admin', password: 'Youreln', createdAt: '2025-10-01 10:00:00', isAdmin: true },
+            { id: 'cjq', username: 'cjq', password: 'cjq123456', createdAt: '2025-10-01 10:00:00', isAdmin: false },
+            { id: 'lzy', username: 'lzy', password: 'lzy123456', createdAt: '2025-10-01 10:00:00', isAdmin: false },
+            { id: 'lyc', username: 'lyc', password: 'lyc123456', createdAt: '2025-10-01 10:00:00', isAdmin: false },
+            { id: 'lyj', username: 'lyj', password: 'lyj123456', createdAt: '2025-10-01 10:00:00', isAdmin: false },
+            { id: 'yzh', username: 'yzh', password: 'yzh123456', createdAt: '2025-10-01 10:00:00', isAdmin: false },
+            { id: 'lyh', username: 'lyh', password: 'lyh123456', createdAt: '2025-10-01 10:00:00', isAdmin: false },
+            { id: 'qzf', username: 'qzf', password: 'qzf123456', createdAt: '2025-10-01 10:00:00', isAdmin: false },
+            { id: 'dsy', username: 'dsy', password: 'dsy123456', createdAt: '2025-10-01 10:00:00', isAdmin: false },
+            { id: 'lzj', username: 'lzj', password: 'lzj123456', createdAt: '2025-10-01 10:00:00', isAdmin: false },
+            { id: 'wc', username: 'wc', password: 'wc123456', createdAt: '2025-10-01 10:00:00', isAdmin: false },
+            { id: 'zsq', username: 'zsq', password: 'zsq123456', createdAt: '2025-10-01 10:00:00', isAdmin: false },
+            { id: 'lhy', username: 'lhy', password: 'lhy123456', createdAt: '2025-10-01 10:00:00', isAdmin: false }
+        ];
+        
+        // 默认管理员密码（实际应用中应该从LeanCloud获取）
+        let adminPassword = 'Youreln';
+
+        // DOM元素
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const logoutBtn = document.getElementById('logout-btn');
+        const addMaterialBtn = document.getElementById('add-material-btn');
+        const addUserBtn = document.getElementById('add-user-btn');
+        const materialModal = document.getElementById('material-modal');
+        const closeMaterialModal = document.getElementById('close-material-modal');
+        const cancelMaterial = document.getElementById('cancel-material');
+        const materialForm = document.getElementById('material-form');
+        const userModal = document.getElementById('user-modal');
+        const closeUserModal = document.getElementById('close-user-modal');
+        const cancelUser = document.getElementById('cancel-user');
+        const userForm = document.getElementById('user-form');
+        const confirmModal = document.getElementById('confirm-modal');
+        const closeConfirmModal = document.getElementById('close-confirm-modal');
+        const cancelDelete = document.getElementById('cancel-delete');
+        const confirmDelete = document.getElementById('confirm-delete');
+        const confirmMessage = document.getElementById('confirm-message');
+        const changePasswordForm = document.getElementById('change-password-form');
+        const passwordSuccess = document.getElementById('password-success');
+        const passwordError = document.getElementById('password-error');
+        const passwordErrorMessage = document.getElementById('password-error-message');
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            // 检查是否已登录
+            const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+            
+            // 加载数据
+            loadMaterials();
+            loadUsers();
+            
+            // 绑定事件
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.dataset.tab;
+                    switchTab(tabId);
+                });
+            });
+            
+            logoutBtn.addEventListener('click', logout);
+            addMaterialBtn.addEventListener('click', showAddMaterialModal);
+            addUserBtn.addEventListener('click', showAddUserModal);
+            closeMaterialModal.addEventListener('click', () => materialModal.classList.add('hidden'));
+            cancelMaterial.addEventListener('click', () => materialModal.classList.add('hidden'));
+            materialForm.addEventListener('submit', handleMaterialSubmit);
+            closeUserModal.addEventListener('click', () => userModal.classList.add('hidden'));
+            cancelUser.addEventListener('click', () => userModal.classList.add('hidden'));
+            userForm.addEventListener('submit', handleUserSubmit);
+            closeConfirmModal.addEventListener('click', () => confirmModal.classList.add('hidden'));
+            cancelDelete.addEventListener('click', () => confirmModal.classList.add('hidden'));
+            confirmDelete.addEventListener('click', handleDelete);
+            changePasswordForm.addEventListener('submit', handleChangePassword);
+            
+            // 绑定编辑和删除按钮事件
+            document.querySelectorAll('.edit-material-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    showEditMaterialModal(id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-material-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    showDeleteConfirm('material', id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    showDeleteConfirm('user', id);
+                });
+            });
+        });
+
+        // 切换标签页
+        function switchTab(tabId) {
+            // 更新标签按钮状态
+            tabBtns.forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.classList.remove('tab-inactive');
+                    btn.classList.add('tab-active');
+                } else {
+                    btn.classList.remove('tab-active');
+                    btn.classList.add('tab-inactive');
+                }
+            });
+            
+            // 更新内容显示
+            tabContents.forEach(content => {
+                if (content.id === `${tabId}-tab`) {
+                    content.classList.remove('hidden');
+                } else {
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('adminLoggedIn');
+            window.location.href = 'admin-login.html';
+        }
+
+        // 加载素材数据
+        function loadMaterials() {
+            // 在实际应用中，这里应该从LeanCloud获取数据
+            // 这里使用模拟数据
+            renderMaterials(materials);
+        }
+
+        // 渲染素材列表
+        function renderMaterials(materialsList) {
+            const tableBody = document.getElementById('materials-table-body');
+            tableBody.innerHTML = '';
+            
+            const categoryNames = {
+                'landscape': '风景',
+                'portrait': '人像',
+                'urban': '城市',
+                'other': '其他'
+            };
+            
+            materialsList.forEach(material => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="table-cell">${material.title}</td>
+                    <td class="table-cell">${material.date}</td>
+                    <td class="table-cell">${categoryNames[material.category]}</td>
+                    <td class="table-cell">
+                        <img src="${material.thumbnail}" alt="缩略图" class="h-12 w-12 object-cover rounded">
+                    </td>
+                    <td class="table-cell">
+                        <a href="${material.cloudLink}" target="_blank" class="text-primary hover:underline">查看链接</a>
+                    </td>
+                    <td class="table-cell">
+                        <button class="text-primary hover:text-blue-700 mr-3 edit-material-btn" data-id="${material.id}">
+                            <i class="fa fa-pencil"></i>
+                        </button>
+                        <button class="text-red-500 hover:text-red-700 delete-material-btn" data-id="${material.id}">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+                
+                // 绑定编辑和删除按钮事件
+                row.querySelector('.edit-material-btn').addEventListener('click', () => {
+                    showEditMaterialModal(material.id);
+                });
+                
+                row.querySelector('.delete-material-btn').addEventListener('click', () => {
+                    showDeleteConfirm('material', material.id);
+                });
+            });
+        }
+
+        // 加载用户数据
+        function loadUsers() {
+            // 在实际应用中，这里应该从LeanCloud获取数据
+            // 这里使用模拟数据
+            renderUsers(users);
+        }
+
+        // 渲染用户列表
+        function renderUsers(usersList) {
+            const tableBody = document.getElementById('users-table-body');
+            tableBody.innerHTML = '';
+            
+            usersList.forEach(user => {
+                const row = document.createElement('tr');
+                
+                if (user.isAdmin) {
+                    row.innerHTML = `
+                        <td class="table-cell">${user.username}</td>
+                        <td class="table-cell">${user.createdAt}</td>
+                        <td class="table-cell">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                管理员
+                            </span>
+                        </td>
+                    `;
+                } else {
+                    row.innerHTML = `
+                        <td class="table-cell">${user.username}</td>
+                        <td class="table-cell">${user.createdAt}</td>
+                        <td class="table-cell">
+                            <button class="text-red-500 hover:text-red-700 delete-user-btn" data-id="${user.id}">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    // 绑定删除按钮事件
+                    row.querySelector('.delete-user-btn').addEventListener('click', () => {
+                        showDeleteConfirm('user', user.id);
+                    });
+                }
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 显示添加素材模态框
+        function showAddMaterialModal() {
+            document.getElementById('material-modal-title').textContent = '添加素材';
+            document.getElementById('material-id').value = '';
+            document.getElementById('material-title').value = '';
+            document.getElementById('material-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('material-category').value = 'landscape';
+            document.getElementById('material-description').value = '';
+            document.getElementById('material-thumbnail').value = '';
+            document.getElementById('material-cloudlink').value = '';
+            materialModal.classList.remove('hidden');
+        }
+
+        // 显示编辑素材模态框
+        function showEditMaterialModal(id) {
+            const material = materials.find(m => m.id === id);
+            if (!material) return;
+            
+            document.getElementById('material-modal-title').textContent = '编辑素材';
+            document.getElementById('material-id').value = material.id;
+            document.getElementById('material-title').value = material.title;
+            document.getElementById('material-date').value = material.date;
+            document.getElementById('material-category').value = material.category;
+            document.getElementById('material-description').value = material.description;
+            document.getElementById('material-thumbnail').value = material.thumbnail;
+            document.getElementById('material-cloudlink').value = material.cloudLink;
+            materialModal.classList.remove('hidden');
+        }
+
+        // 处理素材表单提交
+        function handleMaterialSubmit(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('material-id').value;
+            const title = document.getElementById('material-title').value;
+            const date = document.getElementById('material-date').value;
+            const category = document.getElementById('material-category').value;
+            const description = document.getElementById('material-description').value;
+            const thumbnail = document.getElementById('material-thumbnail').value;
+            const cloudLink = document.getElementById('material-cloudlink').value;
+            
+            if (id) {
+                // 编辑素材
+                updateMaterial(id, { title, date, category, description, thumbnail, cloudLink });
+            } else {
+                // 添加素材
+                const newId = (materials.length + 1).toString();
+                addMaterial({ id: newId, title, date, category, description, thumbnail, cloudLink });
+            }
+            
+            materialModal.classList.add('hidden');
+        }
+
+        // 添加素材
+        function addMaterial(material) {
+            // 在实际应用中，这里应该将数据保存到LeanCloud
+            materials.push(material);
+            renderMaterials(materials);
+            
+            // 显示成功提示
+            showNotification('素材添加成功', 'success');
+        }
+
+        // 更新素材
+        function updateMaterial(id, updatedData) {
+            // 在实际应用中，这里应该更新LeanCloud中的数据
+            const index = materials.findIndex(m => m.id === id);
+            if (index !== -1) {
+                materials[index] = { ...materials[index], ...updatedData };
+                renderMaterials(materials);
+                
+                // 显示成功提示
+                showNotification('素材更新成功', 'success');
+            }
+        }
+
+        // 显示添加用户模态框
+        function showAddUserModal() {
+            document.getElementById('username').value = '';
+            userModal.classList.remove('hidden');
+        }
+
+        // 处理用户表单提交
+        function handleUserSubmit(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            
+            // 检查用户名是否已存在
+            if (users.some(user => user.username === username)) {
+                showNotification('用户名已存在', 'error');
+                return;
+            }
+            
+            // 添加用户
+            const newId = username;
+            const now = new Date().toLocaleString('zh-CN', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit',
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: false
+            });
+            
+            addUser({ id: newId, username, createdAt: now, isAdmin: false });
+            userModal.classList.add('hidden');
+        }
+
+        // 添加用户
+        function addUser(user) {
+            // 在实际应用中，这里应该将数据保存到LeanCloud
+            users.push(user);
+            renderUsers(users);
+            
+            // 显示成功提示
+            showNotification('用户添加成功', 'success');
+        }
+
+        // 显示删除确认模态框
+        function showDeleteConfirm(type, id) {
+            deleteType = type;
+            
+            if (type === 'material') {
+                const material = materials.find(m => m.id === id);
+                if (material) {
+                    confirmMessage.textContent = `您确定要删除素材"${material.title}"吗？此操作无法撤销。`;
+                    currentMaterialId = id;
+                }
+            } else if (type === 'user') {
+                const user = users.find(u => u.id === id);
+                if (user) {
+                    confirmMessage.textContent = `您确定要删除用户"${user.username}"吗？此操作无法撤销。`;
+                    currentUserId = id;
+                }
+            }
+            
+            confirmModal.classList.remove('hidden');
+        }
+
+        // 处理删除操作
+        function handleDelete() {
+            if (deleteType === 'material' && currentMaterialId) {
+                deleteMaterial(currentMaterialId);
+            } else if (deleteType === 'user' && currentUserId) {
+                deleteUser(currentUserId);
+            }
+            
+            confirmModal.classList.add('hidden');
+        }
+
+        // 删除素材
+        function deleteMaterial(id) {
+            // 在实际应用中，这里应该从LeanCloud删除数据
+            const index = materials.findIndex(m => m.id === id);
+            if (index !== -1) {
+                materials.splice(index, 1);
+                renderMaterials(materials);
+                
+                // 显示成功提示
+                showNotification('素材删除成功', 'success');
+            }
+        }
+
+        // 删除用户
+        function deleteUser(id) {
+            // 在实际应用中，这里应该从LeanCloud删除数据
+            const index = users.findIndex(u => u.id === id);
+            if (index !== -1) {
+                users.splice(index, 1);
+                renderUsers(users);
+                
+                // 显示成功提示
+                showNotification('用户删除成功', 'success');
+            }
+        }
+
+        // 处理修改密码
+        function handleChangePassword(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            // 隐藏之前的提示
+            passwordSuccess.classList.add('hidden');
+            passwordError.classList.add('hidden');
+            
+            // 验证当前密码
+            if (currentPassword !== adminPassword) {
+                passwordErrorMessage.textContent = '当前密码错误';
+                passwordError.classList.remove('hidden');
+                return;
+            }
+            
+            // 验证新密码
+            if (newPassword !== confirmPassword) {
+                passwordErrorMessage.textContent = '两次输入的新密码不一致';
+                passwordError.classList.remove('hidden');
+                return;
+            }
+            
+            // 更新密码
+            adminPassword = newPassword;
+            
+            // 在实际应用中，这里应该更新LeanCloud中的密码
+            
+            // 显示成功提示
+            passwordSuccess.classList.remove('hidden');
+            
+            // 清空表单
+            changePasswordForm.reset();
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-md shadow-lg z-50 animate-fade-in ${
+                type === 'success' ? 'bg-green-100 text-green-800 border-l-4 border-green-500' :
+                type === 'error' ? 'bg-red-100 text-red-800 border-l-4 border-red-500' :
+                'bg-blue-100 text-blue-800 border-l-4 border-blue-500'
+            }`;
+            notification.textContent = message;
+            
+            // 添加到页面
+            document.body.appendChild(notification);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 500);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
