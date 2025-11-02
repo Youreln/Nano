@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Youreln素材共享平台</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#4b5563',
+                        dark: '#111827',
+                        light: '#f3f4f6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-300;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors duration-300;
+            }
+            .input-field {
+                @apply w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header class="bg-dark text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/e66e0d9c8700445aa71673d84cd16693~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590472&x-signature=r%2FpZD3d4xyaCGy0BYPr%2BaScd72U%3D" alt="Youreln Logo" class="h-10 w-10">
+                <h1 class="text-2xl font-bold">Youreln素材共享平台</h1>
+            </div>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="#" class="hover:text-primary transition-colors duration-300">首页</a></li>
+                    <li><a href="#about" class="hover:text-primary transition-colors duration-300">关于平台</a></li>
+                    <li><a href="borrow-camera.html" class="hover:text-primary transition-colors duration-300">借相机</a></li>
+                    <li><a href="admin-login.html" class="hover:text-primary transition-colors duration-300">管理后台</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <!-- 筛选区域 -->
+        <section class="mb-8 bg-white p-6 rounded-lg shadow-md animate-fade-in">
+            <h2 class="text-xl font-bold mb-4">素材筛选</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="date-filter" class="block text-sm font-medium text-gray-700 mb-1">选择日期</label>
+                    <input type="date" id="date-filter" class="input-field">
+                </div>
+                <div>
+                    <label for="category-filter" class="block text-sm font-medium text-gray-700 mb-1">拍摄时段</label>
+                    <select id="category-filter" class="input-field">
+                        <option value="all">全部类别</option>
+                        <option value="landscape">风景</option>
+                        <option value="portrait">人像</option>
+                        <option value="urban">城市</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button id="filter-btn" class="btn-primary w-full">
+                        <i class="fa fa-search mr-2"></i>筛选素材
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 素材展示区域 -->
+        <section id="materials-container" class="mt-6">
+            <!-- 素材卡片将通过JavaScript动态生成 -->
+            <!-- 示例卡片 -->
+            <div class="material-card bg-white rounded-lg overflow-hidden shadow-md card-hover animate-slide-up" data-id="1" data-date="2025-06-15" data-category="landscape">
+                <div class="relative">
+                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/8fb9d74015364892b7e5b3ff20aee905~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=Q9i4O8NoPJlFQFyXTG%2Fh0RAii1A%3D" alt="山水风景" class="w-full h-48 object-cover">
+                    <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded">
+                        风景
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-lg font-semibold">山脉湖泊风景</h3>
+                        <span class="text-sm text-gray-500">2025-06-15</span>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">使用大疆OSMO Nano拍摄的高清山水风景素材，包含原始素材和后期处理版本。</p>
+                    <button class="download-btn btn-primary w-full" data-id="1">
+                        <i class="fa fa-download mr-2"></i>下载素材
+                    </button>
+                </div>
+            </div>
+
+            <div class="material-card bg-white rounded-lg overflow-hidden shadow-md card-hover animate-slide-up" data-id="2" data-date="2025-06-16" data-category="urban">
+                <div class="relative">
+                    <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/0685d4dee65a45b78dfa3229c02ec0ef~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=kd%2FwOYuKAn1YKF4hJ3xqcV1YPOo%3D" alt="城市夜景" class="w-full h-48 object-cover">
+                    <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded">
+                        城市
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-lg font-semibold">城市夜景</h3>
+                        <span class="text-sm text-gray-500">2025-06-16</span>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">城市天际线夜景素材，包含延时摄影和静态照片，适合后期制作和编辑。</p>
+                    <button class="download-btn btn-primary w-full" data-id="2">
+                        <i class="fa fa-download mr-2"></i>下载素材
+                    </button>
+                </div>
+            </div>
+
+            <div class="material-card bg-white rounded-lg overflow-hidden shadow-md card-hover animate-slide-up" data-id="3" data-date="2025-06-17" data-category="portrait">
+                <div class="relative">
+                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c86e63a10eec49a180f6c1a4aa541e67~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=OP5aIOYYpO2oH9NwwcpsmzVyZ6w%3D" alt="人像摄影" class="w-full h-48 object-cover">
+                    <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded">
+                        人像
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-lg font-semibold">人像摄影集</h3>
+                        <span class="text-sm text-gray-500">2025-06-17</span>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">自然光下的人像摄影素材，包含不同角度和光线条件下的拍摄效果。</p>
+                    <button class="download-btn btn-primary w-full" data-id="3">
+                        <i class="fa fa-download mr-2"></i>下载素材
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 无结果提示 -->
+        <section id="no-results" class="hidden text-center py-12">
+            <i class="fa fa-search text-4xl text-gray-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">未找到匹配的素材</h3>
+            <p class="text-gray-500">请尝试调整筛选条件或选择其他日期</p>
+        </section>
+
+        <!-- 关于平台 -->
+        <section id="about" class="mt-16 bg-white p-6 rounded-lg shadow-md animate-fade-in">
+            <h2 class="text-xl font-bold mb-4">关于平台</h2>
+            <p class="text-gray-600 mb-4">Youreln素材共享平台是专为大疆OSMO Nano相机用户设计的素材分享平台。我们致力于为摄影爱好者提供一个简单、高效的方式来共享和获取高质量的拍摄素材。</p>
+            <p class="text-gray-600 mb-4">平台特点：</p>
+            <ul class="list-disc list-inside text-gray-600 mb-4 space-y-2">
+                <li>按日期和类别筛选素材</li>
+                <li>高质量摄影素材下载</li>
+                <li>用户权限管理</li>
+                <li>简洁直观的界面</li>
+            </ul>
+            <p class="text-gray-600">如有任何问题或建议，请联系平台管理员。</p>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/e66e0d9c8700445aa71673d84cd16693~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590472&x-signature=r%2FpZD3d4xyaCGy0BYPr%2BaScd72U%3D" alt="Youreln Logo" class="h-8 w-8">
+                        <span class="text-lg font-bold">Youreln素材共享平台</span>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-4">专为大疆OSMO Nano相机用户设计的素材分享平台，提供高质量拍摄素材的共享与下载服务。</p>
+                    <p class="text-sm text-gray-400">© 2025 Youreln. 保留所有权利。</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fa fa-envelope text-primary mr-3"></i>
+                            <a href="mailto:youreln@qq.com" class="text-gray-400 hover:text-white transition-colors duration-300">youreln@qq.com</a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-weixin text-primary mr-3"></i>
+                            <span class="text-gray-400">微信公众号：Youreln</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">外部链接</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fa fa-github text-primary mr-3"></i>
+                            <a href="https://github.com/Youreln/Nano/" target="_blank" class="text-gray-400 hover:text-white transition-colors duration-300">GitHub 仓库</a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-globe text-primary mr-3"></i>
+                            <a href="https://youreln.github.io" target="_blank" class="text-gray-400 hover:text-white transition-colors duration-300">官方网站</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 用户鉴权模态框 -->
+    <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md animate-fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">用户鉴权</h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <p class="text-gray-600 mb-4">请输入您的用户名以获取下载权限</p>
+            <form id="auth-form">
+                <div class="mb-4">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                    <input type="text" id="username" name="username" class="input-field" required>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <input type="password" id="password" name="password" class="input-field" required>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="btn-primary">
+                        <i class="fa fa-check mr-2"></i>确认
+                    </button>
+                </div>
+            </form>
+            <p id="auth-error" class="text-red-500 text-sm mt-4 hidden">用户名验证失败，请联系管理员</p>
+        </div>
+    </div>
+
+    <!-- 下载链接模态框 -->
+    <div id="download-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-4xl h-[80vh] animate-fade-in flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">素材下载</h3>
+                <button id="close-download-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <p class="text-gray-600 mb-2">您已通过验证，正在为您打开素材下载页面</p>
+                <div id="download-info" class="p-3 bg-gray-100 rounded-md mb-3"></div>
+                <p class="text-sm text-gray-500">如果网盘页面无法正常加载，请使用以下链接手动访问：</p>
+                <a id="download-link" href="#" target="_blank" class="text-primary hover:underline block mt-1">
+                    <i class="fa fa-external-link mr-1"></i>
+                    <span id="download-link-text">打开素材下载链接</span>
+                </a>
+            </div>
+            <div class="flex-grow border border-gray-200 rounded-md overflow-hidden">
+                <iframe id="download-iframe" src="" class="w-full h-full" frameborder="0"></iframe>
+            </div>
+            <div class="flex justify-end mt-4">
+                <button id="close-download" class="btn-secondary">
+                    <i class="fa fa-check mr-2"></i>关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+
+
+        // 全局变量
+        let currentMaterialId = null;
+        
+        // 用户数据
+        const users = [
+            { username: 'cjq', password: 'cjq123456' },
+            { username: 'lzy', password: 'lzy123456' },
+            { username: 'lyc', password: 'lyc123456' },
+            { username: 'lyj', password: 'lyj123456' },
+            { username: 'yzh', password: 'yzh123456' },
+            { username: 'lyh', password: 'lyh123456' },
+            { username: 'qzf', password: 'qzf123456' },
+            { username: 'dsy', password: 'dsy123456' },
+            { username: 'lzj', password: 'lzj123456' },
+            { username: 'wc', password: 'wc123456' },
+            { username: 'zsq', password: 'zsq123456' },
+            { username: 'lhy', password: 'lhy123456' }
+        ];
+        
+        // 素材数据
+        const materials = [
+            {
+                id: '1',
+                title: '10月22日上午拍摄素材',
+                description: '大疆OSMO Nano 10月22日上午拍摄的素材。',
+                date: '2025-10-22',
+                time: '上午',
+                category: 'other',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidYTcMP6Xjo',
+                extractCode: 'n2yx',
+                allowedUsers: ['zsq']
+            },
+            {
+                id: '2',
+                title: '10月22日下午拍摄素材',
+                description: '大疆OSMO Nano 10月22日下午拍摄的素材。',
+                date: '2025-10-22',
+                time: '下午',
+                category: 'other',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidYWd1aEAi6',
+                extractCode: 'na0u',
+                allowedUsers: ['lhy']
+            },
+            {
+                id: '3',
+                title: '10月23日上午拍摄素材',
+                description: '大疆OSMO Nano 10月23日上午拍摄的素材。',
+                date: '2025-10-23',
+                time: '上午',
+                category: 'other',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidYMckaNexb',
+                extractCode: 'mcxz',
+                allowedUsers: ['lyj', 'cjq', 'lzy']
+            },
+            {
+                id: '4',
+                title: '10月23日下午拍摄素材',
+                description: '大疆OSMO Nano 10月23日下午拍摄的素材。',
+                date: '2025-10-23',
+                time: '下午',
+                category: 'other',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidZ5dFWq7m4',
+                extractCode: 'aut5',
+                allowedUsers: ['cjq', 'wc', 'lzj', 'lyc']
+            },
+            {
+                id: '5',
+                title: '10月24日上午拍摄素材',
+                description: '大疆OSMO Nano 10月24日上午拍摄的素材。',
+                date: '2025-10-24',
+                time: '上午',
+                category: 'other',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidYCbEioEoo',
+                extractCode: 'zuwe',
+                allowedUsers: ['lzy']
+            },
+            {
+                id: '6',
+                title: '10月24日下午拍摄素材',
+                description: '大疆OSMO Nano 10月24日下午拍摄的素材。',
+                date: '2025-10-24',
+                time: '下午',
+                category: 'other',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidYWd17Qbv0',
+                extractCode: 'jfte',
+                allowedUsers: ['lyh', 'cjq', 'lyj', 'qzf']
+            },
+            {
+                id: '9',
+                title: '10月24日下午拍摄素材（第二组）',
+                description: '大疆OSMO Nano 10月24日下午拍摄的素材（第二组）。',
+                date: '2025-10-24',
+                time: '下午',
+                category: 'other',
+                cloudLink: 'https://caiyun.139.com/w/i/2qidYWd17Qbv0',
+                extractCode: 'jfte',
+                allowedUsers: ['dsy']
+            }
+        ];
+
+        // DOM元素
+        const filterBtn = document.getElementById('filter-btn');
+        const dateFilter = document.getElementById('date-filter');
+        const categoryFilter = document.getElementById('category-filter');
+        const materialsContainer = document.getElementById('materials-container');
+        const noResults = document.getElementById('no-results');
+        const authModal = document.getElementById('auth-modal');
+        const closeModal = document.getElementById('close-modal');
+        const authForm = document.getElementById('auth-form');
+        const authError = document.getElementById('auth-error');
+        const downloadModal = document.getElementById('download-modal');
+        const closeDownloadModal = document.getElementById('close-download-modal');
+        const closeDownload = document.getElementById('close-download');
+        const downloadLink = document.getElementById('download-link');
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            // 设置默认日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            dateFilter.value = today;
+            
+            // 加载素材
+            loadMaterials();
+            
+            // 绑定事件
+            filterBtn.addEventListener('click', filterMaterials);
+            closeModal.addEventListener('click', () => authModal.classList.add('hidden'));
+            closeDownloadModal.addEventListener('click', () => downloadModal.classList.add('hidden'));
+            closeDownload.addEventListener('click', () => downloadModal.classList.add('hidden'));
+            authForm.addEventListener('submit', handleAuth);
+            
+            // 点击下载按钮
+            document.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentMaterialId = btn.dataset.id;
+                    authModal.classList.remove('hidden');
+                });
+            });
+        });
+
+        // 加载素材
+        function loadMaterials() {
+            renderMaterials(materials);
+        }
+
+        // 渲染素材列表
+        function renderMaterials(materialsList) {
+            materialsContainer.innerHTML = '';
+            
+            if (materialsList.length === 0) {
+                noResults.classList.remove('hidden');
+                return;
+            }
+            
+            noResults.classList.add('hidden');
+            
+            // 创建列表容器
+            const listContainer = document.createElement('div');
+            listContainer.className = 'bg-white rounded-lg shadow-md overflow-hidden';
+            
+            // 创建列表头部
+            const listHeader = document.createElement('div');
+            listHeader.className = 'grid grid-cols-4 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+            listHeader.innerHTML = `
+                <div>标题</div>
+                <div>日期</div>
+                <div>时段</div>
+                <div class="text-right">操作</div>
+            `;
+            listContainer.appendChild(listHeader);
+            
+            // 创建列表项
+            materialsList.forEach((material, index) => {
+                const listItem = document.createElement('div');
+                listItem.className = `grid grid-cols-4 px-6 py-4 items-center ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`;
+                listItem.dataset.id = material.id;
+                listItem.dataset.date = material.date;
+                listItem.dataset.category = material.category;
+                
+                listItem.innerHTML = `
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">${material.title}</h3>
+                        <p class="text-sm text-gray-600 mt-1">${material.description}</p>
+                    </div>
+                    <div class="text-gray-900">${material.date}</div>
+                    <div class="text-gray-900">${material.time}</div>
+                    <div class="text-right">
+                        <button class="download-btn btn-primary" data-id="${material.id}">
+                            <i class="fa fa-download mr-2"></i>下载素材
+                        </button>
+                    </div>
+                `;
+                
+                listContainer.appendChild(listItem);
+                
+                // 绑定下载按钮事件
+                listItem.querySelector('.download-btn').addEventListener('click', () => {
+                    currentMaterialId = material.id;
+                    authModal.classList.remove('hidden');
+                });
+            });
+            
+            materialsContainer.appendChild(listContainer);
+        }
+
+        // 筛选素材
+        function filterMaterials() {
+            const selectedDate = dateFilter.value;
+            const selectedCategory = categoryFilter.value;
+            
+            let filteredMaterials = materials;
+            
+            // 按日期筛选
+            if (selectedDate) {
+                filteredMaterials = filteredMaterials.filter(material => material.date === selectedDate);
+            }
+            
+            // 按时段筛选
+            if (selectedCategory !== 'all') {
+                filteredMaterials = filteredMaterials.filter(material => material.time === selectedCategory);
+            }
+            
+            renderMaterials(filteredMaterials);
+        }
+
+        // 处理用户鉴权
+        function handleAuth(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            // 验证用户名和密码
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                // 验证用户是否有权限访问当前素材
+                const material = materials.find(m => m.id === currentMaterialId);
+                if (material && material.allowedUsers.includes(username)) {
+                    authModal.classList.add('hidden');
+                    authError.classList.add('hidden');
+                    
+                    // 显示下载链接和提取码，并在iframe中加载网盘页面
+                    const cloudLink = material.cloudLink;
+                    downloadLink.href = cloudLink;
+                    document.getElementById('download-link-text').textContent = cloudLink;
+                    document.getElementById('download-info').innerHTML = `
+                        <p class="text-gray-600 mb-1">提取码: <strong>${material.extractCode}</strong></p>
+                        <p class="text-gray-500 text-sm">请使用上方提取码下载素材</p>
+                    `;
+                    
+                    // 在iframe中加载网盘页面
+                    const iframe = document.getElementById('download-iframe');
+                    iframe.src = cloudLink;
+                    
+                    downloadModal.classList.remove('hidden');
+                } else {
+                    authError.textContent = '您没有权限访问此素材';
+                    authError.classList.remove('hidden');
+                }
+            } else {
+                authError.textContent = '用户名或密码错误';
+                authError.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
