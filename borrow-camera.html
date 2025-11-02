@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>借相机 - Youreln素材共享平台</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#4b5563',
+                        dark: '#111827',
+                        light: '#f3f4f6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-300;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors duration-300;
+            }
+            .input-field {
+                @apply w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header class="bg-dark text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/e66e0d9c8700445aa71673d84cd16693~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590472&x-signature=r%2FpZD3d4xyaCGy0BYPr%2BaScd72U%3D" alt="Youreln Logo" class="h-10 w-10">
+                <h1 class="text-2xl font-bold">Youreln素材共享平台</h1>
+            </div>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="index.html" class="hover:text-primary transition-colors duration-300">首页</a></li>
+                    <li><a href="index.html#about" class="hover:text-primary transition-colors duration-300">关于平台</a></li>
+                    <li><a href="borrow-camera.html" class="hover:text-primary transition-colors duration-300">借相机</a></li>
+                    <li><a href="admin-login.html" class="hover:text-primary transition-colors duration-300">管理后台</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <!-- 页面标题 -->
+        <section class="mb-8 text-center animate-fade-in">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">相机借用申请</h2>
+            <p class="text-gray-600">请登录后填写借用申请表单</p>
+        </section>
+
+        <!-- 登录区域 -->
+        <section id="login-section" class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md animate-fade-in">
+            <div class="text-center mb-6">
+                <i class="fa fa-camera text-4xl text-primary mb-4"></i>
+                <h3 class="text-xl font-semibold">用户登录</h3>
+                <p class="text-gray-600 mt-2">请输入您的用户名以获取借用权限</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                    <input type="text" id="username" name="username" class="input-field" required placeholder="请输入您的用户名">
+                </div>
+                <div class="flex justify-center">
+                    <button type="submit" class="btn-primary">
+                        <i class="fa fa-sign-in mr-2"></i>登录
+                    </button>
+                </div>
+            </form>
+            <p id="login-error" class="text-red-500 text-sm mt-4 text-center hidden">用户名验证失败，请联系管理员</p>
+        </section>
+
+        <!-- 问卷区域 -->
+        <section id="questionnaire-section" class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md animate-fade-in hidden">
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">相机借用申请表</h3>
+                    <button id="logout-btn" class="text-sm text-gray-600 hover:text-primary transition-colors duration-300">
+                        <i class="fa fa-sign-out mr-1"></i>退出登录
+                    </button>
+                </div>
+                
+                <!-- 令牌提示 -->
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fa fa-info-circle text-blue-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">
+                                请先到 <a href="https://youreln.github.io/Nano/Auth" target="_blank" class="text-blue-600 hover:underline font-medium">https://youreln.github.io/Nano/Auth</a> 认证获取令牌后再填写问卷（如已获取请忽略）
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 嵌入式问卷 -->
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <div id="questionnaire-container" class="w-full" style="min-height: 800px;">
+                        <!-- 问卷将通过JavaScript动态加载 -->
+                        <div class="flex items-center justify-center h-full">
+                            <div class="text-center">
+                                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mb-4"></div>
+                                <p class="text-gray-600">正在加载问卷...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/e66e0d9c8700445aa71673d84cd16693~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590472&x-signature=r%2FpZD3d4xyaCGy0BYPr%2BaScd72U%3D" alt="Youreln Logo" class="h-8 w-8">
+                        <span class="text-lg font-bold">Youreln素材共享平台</span>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-2">© 2025 Youreln. 保留所有权利。</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="https://github.com/Youreln/Nano/" target="_blank" class="text-gray-400 hover:text-white transition-colors duration-300">
+                        <i class="fa fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">
+                        <i class="fa fa-weixin text-xl"></i>
+                    </a>
+                    <a href="mailto:youreln@qq.com" class="text-gray-400 hover:text-white transition-colors duration-300">
+                        <i class="fa fa-envelope text-xl"></i>
+                    </a>
+                    <a href="https://youreln.github.io" target="_blank" class="text-gray-400 hover:text-white transition-colors duration-300">
+                        <i class="fa fa-globe text-xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 可借相机的用户列表
+        const authorizedUsers = [
+            'lhy', 'zwk', 'lc', 'yzg', 'ssy', 'kjx', 'fjj', 'lwx', 'zy', 'lyk', 
+            'fjy', 'lyj', 'zcxx', 'lxh', 'lys', 'fhy', 'cmh', 'tcj', 'lyc', 'csn', 
+            'cjq', 'gcc', 'lqz', 'lzy', 'qzf', 'gyt', 'lfy', 'gy', 'yyx', 'zc', 
+            'zrh', 'lkx', 'lyh', 'wxs', 'yr', 'lzq', 'yzh', 'dqy', 'lwy', 'lxy', 
+            'jxz', 'czb', 'zhy', 'lhz', 'wwb', 'lbw', 'yzh', 'zsq'
+        ];
+
+        // DOM元素
+        const loginSection = document.getElementById('login-section');
+        const questionnaireSection = document.getElementById('questionnaire-section');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutBtn = document.getElementById('logout-btn');
+        const questionnaireContainer = document.getElementById('questionnaire-container');
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            // 检查是否已登录
+            const currentUser = localStorage.getItem('borrowCameraUser');
+            if (currentUser) {
+                showQuestionnaire(currentUser);
+            }
+            
+            // 绑定事件
+            loginForm.addEventListener('submit', handleLogin);
+            logoutBtn.addEventListener('click', handleLogout);
+        });
+
+        // 处理登录
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            
+            // 验证用户
+            if (authorizedUsers.includes(username)) {
+                // 登录成功
+                localStorage.setItem('borrowCameraUser', username);
+                showQuestionnaire(username);
+            } else {
+                // 登录失败
+                loginError.classList.remove('hidden');
+                setTimeout(() => {
+                    loginError.classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        // 处理登出
+        function handleLogout() {
+            localStorage.removeItem('borrowCameraUser');
+            showLogin();
+        }
+
+        // 显示登录界面
+        function showLogin() {
+            loginSection.classList.remove('hidden');
+            questionnaireSection.classList.add('hidden');
+        }
+
+        // 显示问卷界面
+        function showQuestionnaire(username) {
+            loginSection.classList.add('hidden');
+            questionnaireSection.classList.remove('hidden');
+            
+            // 加载嵌入式问卷
+            loadQuestionnaire();
+        }
+
+        // 加载嵌入式问卷
+        function loadQuestionnaire() {
+            // 创建script标签加载问卷
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://www.wjx.top/handler/jqemed.ashx?activity=OlAbixd&width=760&source=iframe';
+            script.onload = function() {
+                console.log('问卷加载成功');
+            };
+            script.onerror = function() {
+                questionnaireContainer.innerHTML = `
+                    <div class="flex items-center justify-center h-full">
+                        <div class="text-center">
+                            <i class="fa fa-exclamation-circle text-red-500 text-4xl mb-4"></i>
+                            <p class="text-gray-600">问卷加载失败，请稍后重试</p>
+                            <button onclick="loadQuestionnaire()" class="btn-primary mt-4">
+                                <i class="fa fa-refresh mr-2"></i>重新加载
+                            </button>
+                        </div>
+                    </div>
+                `;
+            };
+            
+            // 清空容器并添加script
+            questionnaireContainer.innerHTML = '';
+            questionnaireContainer.appendChild(script);
+        }
+    </script>
+</body>
+</html>

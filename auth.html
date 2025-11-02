@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户认证系统</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#60a5fa',
+                        accent: '#1d4ed8',
+                        neutral: '#f3f4f6',
+                        'neutral-dark': '#9ca3af'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+                    },
+                    backdropBlur: {
+                        'glass': '4px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-effect {
+                @apply bg-white bg-opacity-20 backdrop-blur-glass shadow-glass border border-white border-opacity-20 rounded-xl;
+            }
+            
+            .input-focus {
+                @apply focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition-all duration-300;
+            }
+            
+            .btn-primary {
+                @apply bg-primary hover:bg-accent text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+            }
+            
+            .btn-secondary {
+                @apply bg-white hover:bg-neutral text-primary font-medium py-2 px-6 rounded-lg border border-primary transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+            }
+            
+            .text-gradient {
+                @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+            }
+            
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .auth-container {
+            min-height: 100vh;
+        }
+        
+        .token-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+        
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.5;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰 -->
+    <div class="bg-shape bg-primary w-96 h-96 -top-20 -left-20"></div>
+    <div class="bg-shape bg-secondary w-96 h-96 -bottom-20 -right-20"></div>
+    
+    <div class="auth-container flex items-center justify-center p-4 relative overflow-hidden">
+        <!-- 登录卡片 -->
+        <div id="login-card" class="glass-effect w-full max-w-md p-8 card-hover">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gradient mb-2">用户认证系统</h1>
+                <p class="text-neutral-dark">请登录以获取访问权限</p>
+            </div>
+            
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <i class="fa fa-user"></i>
+                        </span>
+                        <input type="text" id="username" name="username" 
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg input-focus" 
+                               placeholder="请输入用户名" required>
+                    </div>
+                </div>
+                
+                <div id="password-container">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密码 <span id="password-optional" class="text-xs text-gray-500">(可选)</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <i class="fa fa-lock"></i>
+                        </span>
+                        <input type="password" id="password" name="password" 
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg input-focus" 
+                               placeholder="部分用户无需密码">
+                        <button type="button" id="toggle-password" 
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-primary">
+                            <i class="fa fa-eye-slash"></i>
+                        </button>
+                    </div>
+                    <p id="password-hint" class="mt-1 text-xs text-gray-500 hidden">该用户无需密码，直接点击登录即可</p>
+                </div>
+                
+                <div id="error-message" class="hidden bg-red-50 text-red-500 p-3 rounded-lg text-sm"></div>
+                
+                <button type="submit" class="w-full btn-primary flex items-center justify-center">
+                    <span>登录</span>
+                    <i class="fa fa-arrow-right ml-2"></i>
+                </button>
+            </form>
+        </div>
+        
+        <!-- 成功页面 -->
+        <div id="success-card" class="glass-effect w-full max-w-md p-8 hidden card-hover">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-500 text-2xl mb-4">
+                    <i class="fa fa-check"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">认证成功</h2>
+                <p class="text-neutral-dark">欢迎回来，<span id="welcome-username" class="font-medium text-primary"></span></p>
+            </div>
+            
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-gray-700">您的访问令牌</h3>
+                    <button id="copy-token" class="text-sm text-primary hover:text-accent transition-colors">
+                        <i class="fa fa-copy mr-1"></i>复制
+                    </button>
+                </div>
+                <div id="token-display" class="token-animation bg-white bg-opacity-70 p-4 rounded-lg font-mono text-sm overflow-x-auto"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-4">
+                <a href="https://youreln.github.io/Nano" target="_blank" class="btn-primary flex items-center justify-center">
+                    <i class="fa fa-picture-o mr-2"></i>
+                    <span>访问素材网站</span>
+                </a>
+                <a href="https://www.wjx.top/vm/OlAbixd.aspx#" target="_blank" class="btn-secondary flex items-center justify-center">
+                    <i class="fa fa-camera mr-2"></i>
+                    <span>填写借相机信息</span>
+                </a>
+                <button id="logout-btn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg transition-all duration-300">
+                    <i class="fa fa-sign-out mr-2"></i>
+                    <span>退出登录</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 预定义用户列表 - 这些用户不需要密码
+        const noPasswordUsers = [
+            'lhy', 'zwk', 'lc', 'yzg', 'ssy', 'kjx', 'fjj', 'lwx', 'zy', 'lyk', 
+            'fjy', 'lyj', 'zcxx', 'lxh', 'lys', 'fhy', 'cmh', 'tcj', 'lyc', 'csn', 
+            'cjq', 'gcc', 'lqz', 'lzy', 'qzf', 'gyt', 'lfy', 'gy', 'yyx', 'zc', 
+            'zrh', 'lkx', 'lyh', 'wxs', 'yr', 'lzq', 'yzh', 'dqy', 'lwy', 'lxy', 
+            'jxz', 'czb', 'zhy', 'lhz', 'wwb', 'lbw', 'yzh', 'zsq'
+        ];
+        
+        // 需要密码的用户列表（保留原有用户但移除非密码用户）
+        const passwordUsers = [
+            'dsy', 'lzj', 'wc'
+        ];
+        
+        // DOM 元素
+        const loginCard = document.getElementById('login-card');
+        const successCard = document.getElementById('success-card');
+        const loginForm = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+        const welcomeUsername = document.getElementById('welcome-username');
+        const tokenDisplay = document.getElementById('token-display');
+        const copyTokenBtn = document.getElementById('copy-token');
+        const logoutBtn = document.getElementById('logout-btn');
+        const togglePasswordBtn = document.getElementById('toggle-password');
+        const passwordInput = document.getElementById('password');
+        
+        // 切换密码可见性
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePasswordBtn.innerHTML = type === 'password' ? '<i class="fa fa-eye-slash"></i>' : '<i class="fa fa-eye"></i>';
+        });
+        
+        // 用户名输入监听，提示是否需要密码
+        const usernameInput = document.getElementById('username');
+        const passwordHint = document.getElementById('password-hint');
+        const passwordOptional = document.getElementById('password-optional');
+        
+        usernameInput.addEventListener('input', () => {
+            const username = usernameInput.value.trim();
+            
+            if (noPasswordUsers.includes(username)) {
+                passwordHint.classList.remove('hidden');
+                passwordOptional.classList.remove('hidden');
+                passwordInput.removeAttribute('required');
+            } else if (passwordUsers.includes(username)) {
+                passwordHint.classList.add('hidden');
+                passwordOptional.classList.add('hidden');
+                passwordInput.setAttribute('required', 'required');
+            } else {
+                passwordHint.classList.add('hidden');
+                passwordOptional.classList.remove('hidden');
+                passwordInput.removeAttribute('required');
+            }
+        });
+        
+        // 登录表单提交
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            // 验证用户名是否在预定义列表中
+            if (!noPasswordUsers.includes(username) && !passwordUsers.includes(username)) {
+                showError('用户名不存在');
+                return;
+            }
+            
+            // 对于需要密码的用户，验证密码是否符合规则（用户名+123456）
+            if (passwordUsers.includes(username)) {
+                const expectedPassword = username + '123456';
+                if (password !== expectedPassword) {
+                    showError('密码错误');
+                    return;
+                }
+            }
+            
+            // 登录成功，生成令牌并显示成功页面
+            const token = username + '1728737';
+            welcomeUsername.textContent = username;
+            tokenDisplay.textContent = token;
+            
+            // 隐藏错误消息
+            hideError();
+            
+            // 使用 GSAP 动画切换到成功页面
+            gsap.to(loginCard, {
+                opacity: 0,
+                y: -20,
+                duration: 0.5,
+                onComplete: () => {
+                    loginCard.classList.add('hidden');
+                    successCard.classList.remove('hidden');
+                    gsap.fromTo(successCard, 
+                        { opacity: 0, y: 20 },
+                        { opacity: 1, y: 0, duration: 0.5 }
+                    );
+                }
+            });
+        });
+        
+        // 复制令牌到剪贴板
+        copyTokenBtn.addEventListener('click', () => {
+            const token = tokenDisplay.textContent;
+            navigator.clipboard.writeText(token).then(() => {
+                const originalText = copyTokenBtn.innerHTML;
+                copyTokenBtn.innerHTML = '<i class="fa fa-check mr-1"></i>已复制';
+                copyTokenBtn.classList.add('text-green-500');
+                
+                setTimeout(() => {
+                    copyTokenBtn.innerHTML = originalText;
+                    copyTokenBtn.classList.remove('text-green-500');
+                }, 2000);
+            });
+        });
+        
+        // 退出登录
+        logoutBtn.addEventListener('click', () => {
+            // 重置表单
+            loginForm.reset();
+            
+            // 使用 GSAP 动画切换回登录页面
+            gsap.to(successCard, {
+                opacity: 0,
+                y: 20,
+                duration: 0.5,
+                onComplete: () => {
+                    successCard.classList.add('hidden');
+                    loginCard.classList.remove('hidden');
+                    gsap.fromTo(loginCard, 
+                        { opacity: 0, y: -20 },
+                        { opacity: 1, y: 0, duration: 0.5 }
+                    );
+                }
+            });
+        });
+        
+        // 显示错误消息
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            
+            // 添加抖动动画
+            gsap.fromTo(errorMessage, 
+                { x: -10 },
+                { x: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" }
+            );
+        }
+        
+        // 隐藏错误消息
+        function hideError() {
+            errorMessage.classList.add('hidden');
+        }
+        
+        // 页面加载时的动画
+        window.addEventListener('load', () => {
+            gsap.fromTo(loginCard, 
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }
+            );
+        });
+    </script>
+</body>
+</html>
