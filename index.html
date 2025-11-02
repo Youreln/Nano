@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Youreln素材共享平台</title>
+    <title>管理员登录 - Youreln素材共享平台</title>
     <!-- Tailwind CSS v3 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -61,130 +61,80 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
-    <!-- 导航栏 -->
-    <header class="bg-dark text-white shadow-md">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/e66e0d9c8700445aa71673d84cd16693~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590472&x-signature=r%2FpZD3d4xyaCGy0BYPr%2BaScd72U%3D" alt="Youreln Logo" class="h-10 w-10">
-                <h1 class="text-2xl font-bold">Youreln素材共享平台</h1>
-            </div>
-            <nav>
-                <ul class="flex space-x-6">
-                    <li><a href="#" class="hover:text-primary transition-colors duration-300">首页</a></li>
-                    <li><a href="#about" class="hover:text-primary transition-colors duration-300">关于平台</a></li>
-                    <li><a href="borrow-camera.html" class="hover:text-primary transition-colors duration-300">借相机</a></li>
-                    <li><a href="admin-login.html" class="hover:text-primary transition-colors duration-300">管理后台</a></li>
-                </ul>
-            </nav>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-100 to-gray-300">
+    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-xl animate-fade-in">
+        <div class="text-center">
+            <img class="mx-auto h-16 w-auto" src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/e66e0d9c8700445aa71673d84cd16693~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590472&x-signature=r%2FpZD3d4xyaCGy0BYPr%2BaScd72U%3D" alt="Youreln Logo">
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900">管理员登录</h2>
+            <p class="mt-2 text-sm text-gray-600">请输入管理员密码以访问后台系统</p>
         </div>
-    </header>
-
-    <!-- 主内容区 -->
-    <main class="flex-grow container mx-auto px-4 py-8">
-        <!-- 筛选区域 -->
-        <section class="mb-8 bg-white p-6 rounded-lg shadow-md animate-fade-in">
-            <h2 class="text-xl font-bold mb-4">素材筛选</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <form id="login-form" class="mt-8 space-y-6">
+            <div class="rounded-md -space-y-px">
                 <div>
-                    <label for="date-filter" class="block text-sm font-medium text-gray-700 mb-1">选择日期</label>
-                    <input type="date" id="date-filter" class="input-field">
-                </div>
-                <div>
-                    <label for="category-filter" class="block text-sm font-medium text-gray-700 mb-1">拍摄时段</label>
-                    <select id="category-filter" class="input-field">
-                        <option value="all">全部类别</option>
-                        <option value="landscape">风景</option>
-                        <option value="portrait">人像</option>
-                        <option value="urban">城市</option>
-                        <option value="other">其他</option>
-                    </select>
-                </div>
-                <div class="flex items-end">
-                    <button id="filter-btn" class="btn-primary w-full">
-                        <i class="fa fa-search mr-2"></i>筛选素材
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- 素材展示区域 -->
-        <section id="materials-container" class="mt-6">
-            <!-- 素材卡片将通过JavaScript动态生成 -->
-            <!-- 示例卡片 -->
-            <div class="material-card bg-white rounded-lg overflow-hidden shadow-md card-hover animate-slide-up" data-id="1" data-date="2025-06-15" data-category="landscape">
-                <div class="relative">
-                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/8fb9d74015364892b7e5b3ff20aee905~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=Q9i4O8NoPJlFQFyXTG%2Fh0RAii1A%3D" alt="山水风景" class="w-full h-48 object-cover">
-                    <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded">
-                        风景
-                    </div>
-                </div>
-                <div class="p-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-lg font-semibold">山脉湖泊风景</h3>
-                        <span class="text-sm text-gray-500">2025-06-15</span>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">使用大疆OSMO Nano拍摄的高清山水风景素材，包含原始素材和后期处理版本。</p>
-                    <button class="download-btn btn-primary w-full" data-id="1">
-                        <i class="fa fa-download mr-2"></i>下载素材
-                    </button>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <input id="password" name="password" type="password" required class="input-field" placeholder="请输入管理员密码">
                 </div>
             </div>
 
-            <div class="material-card bg-white rounded-lg overflow-hidden shadow-md card-hover animate-slide-up" data-id="2" data-date="2025-06-16" data-category="urban">
-                <div class="relative">
-                    <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/0685d4dee65a45b78dfa3229c02ec0ef~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=kd%2FwOYuKAn1YKF4hJ3xqcV1YPOo%3D" alt="城市夜景" class="w-full h-48 object-cover">
-                    <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded">
-                        城市
-                    </div>
-                </div>
-                <div class="p-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-lg font-semibold">城市夜景</h3>
-                        <span class="text-sm text-gray-500">2025-06-16</span>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">城市天际线夜景素材，包含延时摄影和静态照片，适合后期制作和编辑。</p>
-                    <button class="download-btn btn-primary w-full" data-id="2">
-                        <i class="fa fa-download mr-2"></i>下载素材
-                    </button>
-                </div>
+            <div>
+                <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-300">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fa fa-lock text-white"></i>
+                    </span>
+                    登录
+                </button>
             </div>
+        </form>
+        <div id="login-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">错误：</strong>
+            <span class="block sm:inline">密码错误，请重试</span>
+        </div>
+        <div class="text-center mt-4">
+            <a href="index.html" class="text-sm text-primary hover:text-blue-700 transition-colors duration-300">
+                <i class="fa fa-arrow-left mr-1"></i> 返回首页
+            </a>
+        </div>
+    </div>
 
-            <div class="material-card bg-white rounded-lg overflow-hidden shadow-md card-hover animate-slide-up" data-id="3" data-date="2025-06-17" data-category="portrait">
-                <div class="relative">
-                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c86e63a10eec49a180f6c1a4aa541e67~tplv-a9rns2rl98-image.image?rcl=2025110120002357DAFDCAAB7207341AE1&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1764590481&x-signature=OP5aIOYYpO2oH9NwwcpsmzVyZ6w%3D" alt="人像摄影" class="w-full h-48 object-cover">
-                    <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded">
-                        人像
-                    </div>
-                </div>
-                <div class="p-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-lg font-semibold">人像摄影集</h3>
-                        <span class="text-sm text-gray-500">2025-06-17</span>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-4">自然光下的人像摄影素材，包含不同角度和光线条件下的拍摄效果。</p>
-                    <button class="download-btn btn-primary w-full" data-id="3">
-                        <i class="fa fa-download mr-2"></i>下载素材
-                    </button>
-                </div>
-            </div>
-        </section>
+    <script>
 
-        <!-- 无结果提示 -->
-        <section id="no-results" class="hidden text-center py-12">
-            <i class="fa fa-search text-4xl text-gray-400 mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-600 mb-2">未找到匹配的素材</h3>
-            <p class="text-gray-500">请尝试调整筛选条件或选择其他日期</p>
-        </section>
 
-        <!-- 关于平台 -->
-        <section id="about" class="mt-16 bg-white p-6 rounded-lg shadow-md animate-fade-in">
-            <h2 class="text-xl font-bold mb-4">关于平台</h2>
-            <p class="text-gray-600 mb-4">Youreln素材共享平台是专为大疆OSMO Nano相机用户设计的素材分享平台。我们致力于为摄影爱好者提供一个简单、高效的方式来共享和获取高质量的拍摄素材。</p>
-            <p class="text-gray-600 mb-4">平台特点：</p>
-            <ul class="list-disc list-inside text-gray-600 mb-4 space-y-2">
-                <li>按日期和类别筛选素材</li>
-                <li>高质量摄影素材下载</li>
+        // DOM元素
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+
+        // 默认管理员密码（实际应用中应该从LeanCloud获取）
+        const DEFAULT_ADMIN_PASSWORD = 'Youreln';
+
+        // 检查是否已登录
+        document.addEventListener('DOMContentLoaded', () => {
+            const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+            if (isLoggedIn) {
+                window.location.href = 'admin.html';
+            }
+        });
+
+        // 处理登录表单提交
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            
+            // 验证密码
+            if (password === DEFAULT_ADMIN_PASSWORD) {
+                // 登录成功
+                localStorage.setItem('adminLoggedIn', 'true');
+                window.location.href = 'admin.html';
+            } else {
+                // 登录失败
+                loginError.classList.remove('hidden');
+                setTimeout(() => {
+                    loginError.classList.add('hidden');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html><li>高质量摄影素材下载</li>
                 <li>用户权限管理</li>
                 <li>简洁直观的界面</li>
             </ul>
